@@ -46,7 +46,7 @@ public class Program
                     System.out.println("serializing object...");
                     break;
                 case 3:
-                    System.out.println("You selected Option 3.");
+                	createPolygonObject(scanner);
                     System.out.println("serializing object...");
                     break;
                 case 4:
@@ -109,5 +109,32 @@ public class Program
 		Point point1 = createPointObject(scanner);
 		Point point2 = createPointObject(scanner);
 		return new Line(point1, point2);
+	}
+	
+	private static Polygon createPolygonObject(Scanner scanner)
+	{
+		System.out.println("Creating a polygon object...");
+		boolean	done 			= false;
+		int 	numberOfSides 	= 0;
+		while (!done)
+		{
+			System.out.print(">> Enter the number of sides: ");
+	        numberOfSides = scanner.nextInt();
+	        if (numberOfSides > 2)
+	        {
+	        	done = true;
+	        }
+	        else
+	        {
+	        	System.out.println("Invalid. Number of sides must be at least 3.");
+	        }
+		}
+        System.out.println("\r\nTo create a " + numberOfSides + "-sided polygon,\r\nspecify the location of each vertex.\r\n");
+        Point[] vertices = new Point[numberOfSides];
+        for (int i = 0; i < numberOfSides; i++) {
+        	vertices[i] = createPointObject(scanner);
+        }
+        
+        return new Polygon(numberOfSides, vertices);
 	}
 }
