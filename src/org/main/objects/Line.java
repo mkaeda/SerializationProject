@@ -1,6 +1,7 @@
-package org.objects;
+package org.main.objects;
 
-public class Line extends GeometricObject {
+public class Line extends GeometricObject
+{
     private Point startPoint;
     private Point endPoint;
 

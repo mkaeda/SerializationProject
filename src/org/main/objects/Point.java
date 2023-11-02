@@ -1,4 +1,4 @@
-package org.objects;
+package org.main.objects;
 
 public class Point extends GeometricObject {
     private float x;
@@ -10,11 +10,11 @@ public class Point extends GeometricObject {
     }
 
     // Setters
-    public void setX(int x) {
+    public void setX(float x) {
         this.x = x;
     }
 
-    public void setY(int y) {
+    public void setY(float y) {
         this.y = y;
     }
 

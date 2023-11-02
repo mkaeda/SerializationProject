@@ -1,4 +1,4 @@
-package org.objects;
+package org.main.objects;
 
 import java.util.ArrayList;
 import java.util.Collections;

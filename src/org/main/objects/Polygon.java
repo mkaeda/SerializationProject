@@ -1,4 +1,4 @@
-package org.objects;
+package org.main.objects;
 
 public class Polygon extends GeometricObject
 {

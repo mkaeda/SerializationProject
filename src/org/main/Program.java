@@ -1,12 +1,12 @@
-package org;
+package org.main;
 
 import java.util.Scanner;
 
-import org.objects.CartesianPlot;
-import org.objects.Line;
-import org.objects.Point;
-import org.objects.Polygon;
-import org.objects.Polynomial;
+import org.main.objects.CartesianPlot;
+import org.main.objects.Line;
+import org.main.objects.Point;
+import org.main.objects.Polygon;
+import org.main.objects.Polynomial;
 
 
 public class Program 
@@ -29,7 +29,8 @@ public class Program
         Scanner scanner = new Scanner(System.in);
         int 	choice 	= 0;
 
-        while (choice != QUIT) {
+        while (choice != QUIT)
+        {
             printMenu();
             
             choice = scanner.nextInt();
