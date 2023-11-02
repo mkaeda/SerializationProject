@@ -11,16 +11,25 @@ import org.main.objects.Polynomial;
 
 public class Program 
 {
-	private static final String[] options = {
-		Point.class.getSimpleName(),
-		Line.class.getSimpleName(),
-		Polygon.class.getSimpleName(),
-		Polynomial.class.getSimpleName(),
-		CartesianPlot.class.getSimpleName(),
-		"Quit"
+	private static final String[] MAIN_MENU_OPTIONS = {
+			Point.class.getSimpleName(),
+			Line.class.getSimpleName(),
+			Polygon.class.getSimpleName(),
+			Polynomial.class.getSimpleName(),
+			CartesianPlot.class.getSimpleName(),
+			"Quit"
 	};
 	
-	private static final int QUIT = options.length;
+	private static final String[] CART_PLOT_OBJECT_OPTIONS = {
+			Point.class.getSimpleName(),
+			Line.class.getSimpleName(),
+			Polygon.class.getSimpleName(),
+			Polynomial.class.getSimpleName(),
+			"Done"
+	};
+	
+	private static final int QUIT = MAIN_MENU_OPTIONS.length;
+	private static final int DONE = CART_PLOT_OBJECT_OPTIONS.length;
 	
 	public static void main(String[] args) 
 	{
@@ -50,11 +59,11 @@ public class Program
                     System.out.println("serializing object...");
                     break;
                 case 4:
-                	System.out.println("You selected Option 4.");
+                	createPolynomialObject(scanner);
                 	System.out.println("serializing object...");
                     break;
                 case 5:
-                	System.out.println("You selected Option 5.");
+                	createCartesianPlotObject(scanner);
                 	System.out.println("serializing object...");
                 	break;
                 case 6:
@@ -85,8 +94,8 @@ public class Program
 	private static void printMenu()
 	{
 		System.out.println("Select an object to create and serialise.");
-		for (int i = 0; i < options.length; i++) {
-			System.out.println(String.format("%d. %s", i + 1, options[i]));
+		for (int i = 0; i < MAIN_MENU_OPTIONS.length; i++) {
+			System.out.println(String.format("%d. %s", i + 1, MAIN_MENU_OPTIONS[i]));
 		}
 		System.out.print("Selection: ");
 	}
@@ -136,5 +145,116 @@ public class Program
         }
         
         return new Polygon(numberOfSides, vertices);
+	}
+	
+	private static Polynomial createPolynomialObject(Scanner scanner)
+	{
+		System.out.println("Creating a polynomial object...");
+		boolean	done	= false;
+		int 	degree	= -1;
+		while (!done)
+		{
+			System.out.print(">> Enter the number of sides: ");
+	        degree = scanner.nextInt();
+	        if (degree >= 0)
+	        {
+	        	done = true;
+	        }
+	        else
+	        {
+	        	System.out.println("Invalid. Degree of polynomial must be an integer value greater than or equal to 0.");
+	        }
+		}
+		
+		int numRoots = -1;
+		done = false;
+		while (!done) {
+			System.out.println("Enter the number of roots: ");
+			numRoots = scanner.nextInt();
+			if (numRoots > degree || (isEven(degree) && numRoots < 0))
+			{
+				System.out.println("Invalid. Number of roots must be an integer value between 0 and the degree of the polynomial");
+			}
+			else if (!isEven(degree) && numRoots < 1)
+			{
+				System.out.println("Invalid. Number of roots must be an integer value between 1 and the degree of the polynomial");
+			}
+			else 
+			{
+				done = true;
+			}
+		}
+
+        float[] roots = new float[numRoots];
+        for (int i = 0; i < numRoots; i++) {
+        	roots[i] = getPolynomialRoot(scanner);
+        }
+        
+        return new Polynomial(degree, roots);
+	}
+	
+	private static float getPolynomialRoot(Scanner scanner)
+	{
+		System.out.print(">> Enter the x-coordinate value for the first root: ");
+        return scanner.nextFloat();
+	}
+	
+	private static CartesianPlot createCartesianPlotObject(Scanner scanner)
+	{
+		CartesianPlot plot = new CartesianPlot();
+		System.out.print("Would you like to add objects to the cartesian plot? (Y/N)");
+		char choice = scanner.next().charAt(0);
+		if (choice == 'Y')
+		{
+			addObjectsToCartesianPlot(scanner, plot);
+		}
+		return plot;
+	}
+	
+	private static void printCartesianAddObjectMenu()
+	{
+		System.out.println("Select an object to add to the cartesian plot or 'Done' to finish.");
+		for (int i = 0; i < CART_PLOT_OBJECT_OPTIONS.length; i++) {
+			System.out.println(String.format("%d. %s", i + 1, CART_PLOT_OBJECT_OPTIONS[i]));
+		}
+		System.out.print("Selection: ");
+	}
+	
+	private static void addObjectsToCartesianPlot(Scanner scanner, CartesianPlot plot)
+	{
+        int choice 	= 0;
+        while (choice != DONE)
+        {
+        	printCartesianAddObjectMenu();
+            
+            choice = scanner.nextInt();
+
+            switch (choice)
+            {
+                case 1:
+                    plot.add(createPointObject(scanner));
+                    break;
+                case 2:
+                    plot.add(createLineObject(scanner));
+                    break;
+                case 3:
+                	plot.add(createPolygonObject(scanner));
+                    break;
+                case 4:
+                	plot.add(createPolynomialObject(scanner));
+                    break;             
+                case 5:
+                	System.out.println("Finished adding objects.");
+                	break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+                    break;
+            }
+        }
+	}
+	
+	private static boolean isEven(int n)
+	{
+		return n % 2 == 0;
 	}
 }

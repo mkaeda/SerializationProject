@@ -35,6 +35,19 @@ public class TestPolynomialCreation
 	}
 	
 	@Test
+	public void testNegativeDegree()
+	{
+		final String EXPECTED_MSG = "degree must be 0 or higher";
+
+		IllegalArgumentException exception = assertThrows(
+				IllegalArgumentException.class, 
+        		() -> { new Polynomial(-1, new float[] { }); }
+		);
+
+        assertEquals(EXPECTED_MSG, exception.getMessage());
+	}
+	
+	@Test
 	public void testEvenDegreeTooManyRoots()
 	{
 		final String EXPECTED_MSG = "number of roots must must be between 0 and the degree, inclusive";

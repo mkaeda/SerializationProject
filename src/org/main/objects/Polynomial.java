@@ -6,6 +6,8 @@ public class Polynomial extends GeometricObject
     private float[] roots;
 
     public Polynomial(int degree, float[] roots) {
+    	if (degree < 0)
+    		throw new IllegalArgumentException("degree must be 0 or higher");
     	if (roots == null)
     		throw new NullPointerException("roots");
     	// Even degree has between 0-degree number of roots
