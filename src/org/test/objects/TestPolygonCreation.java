@@ -1,10 +1,9 @@
 package org.test.objects;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
 
 import org.junit.Test;
 import org.main.objects.Point;
@@ -25,15 +24,7 @@ public class TestPolygonCreation
 		Polygon p = new Polygon(vertices.length, vertices);
 		assertTrue(p.getNumberOfSides() == vertices.length);
 		assertTrue(p.getVertices().length == vertices.length);
-		
-		// Ensure that arrays object are equal and in the same order.
-		assertTrue(
-			Arrays.stream(vertices)
-                .filter(
-            		u -> Arrays.stream(p.getVertices()).anyMatch(v ->  u == v)
-        		)
-                .count() == vertices.length
-        );
+		assertArrayEquals(vertices, p.getVertices());
 	}
 
 	@Test
