@@ -46,23 +46,18 @@ public class Serializer
             }
             
             Element objectElement 	= new Element("object");
-            objectElement.setAttribute("class", obj.getClass().getSimpleName());
+            objectElement.setAttribute("class", obj.getClass().getName());
             objectElement.setAttribute("id", String.valueOf(id));
             root.addContent(objectElement);
 
             if (obj.getClass().isArray() || obj instanceof Collection)
             {
-            	Object array;
+            	Object	array	= obj.getClass().isArray() ? obj : ((Collection<?>) obj).toArray();
+            	int		length	= Array.getLength(array);
             	if (obj.getClass().isArray())
             	{
-            		array = obj;
+    				objectElement.setAttribute("length", String.valueOf(length));
             	}
-            	else
-            	{
-            		array = ((Collection<?>) obj).toArray();
-            	}
-            	int length = Array.getLength(array);
-				objectElement.setAttribute("length", String.valueOf(length));
 				  
 				for (int i = 0; i < length; i++)
 				{
@@ -105,7 +100,7 @@ public class Serializer
                     
                     Element fieldElement = new Element("field");
                     fieldElement.setAttribute("name", field.getName());
-                    fieldElement.setAttribute("declaringclass", field.getDeclaringClass().getSimpleName());                
+                    fieldElement.setAttribute("declaringclass", field.getDeclaringClass().getName());                
                     
                     try
                     {
