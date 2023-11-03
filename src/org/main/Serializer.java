@@ -45,9 +45,7 @@ public class Serializer
             	id = identityHashMap.get(obj);
             }
             
-            Element objectElement = new Element("object");
-            objectElement.setAttribute("class", obj.getClass().getName());
-            objectElement.setAttribute("id", String.valueOf(id));
+            Element objectElement = getObjectElement(obj.getClass().getName(), String.valueOf(id));
             root.addContent(objectElement);
 
             if (obj.getClass().isArray() || obj instanceof Collection)
@@ -71,8 +69,7 @@ public class Serializer
 						else
 						{
 							int		arrayElementId		= getObjectId(arrayElement, identityHashMap);							
-							Element referenceElement 	= new Element("reference");
-							referenceElement.setText(String.valueOf(arrayElementId));
+							Element referenceElement 	= getReferenceElement(String.valueOf(arrayElementId));
 							objectElement.addContent(referenceElement);
 							
 							if (!identityHashMap.containsKey(arrayElement) && 
@@ -92,9 +89,7 @@ public class Serializer
                 {
                     field.setAccessible(true);
                     
-                    Element fieldElement = new Element("field");
-                    fieldElement.setAttribute("name", field.getName());
-                    fieldElement.setAttribute("declaringclass", field.getDeclaringClass().getName());                
+                    Element fieldElement = getFieldElement(field.getName(), field.getDeclaringClass().getName());              
                     
                     try
                     {
@@ -106,8 +101,7 @@ public class Serializer
                             else
                             {
                             	int		fieldObjectId		= getObjectId(fieldValue, identityHashMap);                            	
-    							Element referenceElement 	= new Element("reference");
-    							referenceElement.setText(String.valueOf(fieldObjectId));
+    							Element referenceElement 	= getReferenceElement(String.valueOf(fieldObjectId));
     							fieldElement.addContent(referenceElement);
     							
                                 if (!identityHashMap.containsKey(fieldValue) && 
@@ -155,6 +149,29 @@ public class Serializer
     	Element valueElement = new Element("value");
         valueElement.setText(value);
         return valueElement;
+    }
+    
+    private Element getReferenceElement(String refId)
+    {
+    	Element referenceElement = new Element("reference");
+		referenceElement.setText(String.valueOf(refId));
+		return referenceElement;
+    }
+    
+    private Element getFieldElement(String name, String declaringClass) 
+    {
+    	Element fieldElement = new Element("field");
+        fieldElement.setAttribute("name", name);
+        fieldElement.setAttribute("declaringclass", declaringClass);
+        return fieldElement;
+    }
+    
+    private Element getObjectElement(String className, String id)
+    {
+    	Element objectElement = new Element("object");
+        objectElement.setAttribute("class", className);
+        objectElement.setAttribute("id", id);
+        return objectElement;
     }
 }
 
