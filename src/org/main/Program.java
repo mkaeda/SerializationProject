@@ -103,6 +103,7 @@ public class Program
                         sendOrSave = -1;
                 	}
             	}
+            	document = null;
             }
             
             System.out.println();
@@ -146,12 +147,14 @@ public class Program
 		outputter.setFormat(Format.getPrettyFormat());
         
         System.out.print(" >> Enter complete file name: ");
-		String filename	= scanner.nextLine();
+		String filename	= scanner.next();
 		
 		try
 		{
 			System.out.println("Saving file...");
-            FileWriter writer = new FileWriter(new File(filename));
+			File file = new File(filename);
+			file.createNewFile();
+            FileWriter writer = new FileWriter(file);
             outputter.output(doc, writer);
             writer.flush();
             writer.close();
@@ -167,7 +170,6 @@ public class Program
 	{
 		String openingText = "Welcome to the Geometric Object Serialization Program!\n\n"
                 + "This program allows you to create various geometric objects and serialize them for later use.\r\n"
-
                 + "Please follow the instructions to select and create your desired geometric objects. You can choose\r\n"
                 + "from options such as point, squares, triangles, and more. Once you have created your objects, you\r\n"
                 + "can serialize them and send or store their data.\r\n"
