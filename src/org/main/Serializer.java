@@ -1,8 +1,5 @@
 package org.main;
 
-import org.jdom2.Document;
-import org.jdom2.Element;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayDeque;
@@ -10,9 +7,11 @@ import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Queue;
 
+import org.jdom2.Document;
+import org.jdom2.Element;
+
 public class Serializer
 {
-
     public Document serialize(Object obj)
     {
         Element		root		= new Element("serialized");
@@ -35,15 +34,14 @@ public class Serializer
             Object 	obj = queue.remove();
             int		id;
             
+            // Get object id
             if (!identityHashMap.containsKey(obj))
             {
             	id = identityHashMap.size();
                 identityHashMap.put(obj, id);
             }
             else
-            {
             	id = identityHashMap.get(obj);
-            }
             
             Element objectElement = getObjectElement(obj.getClass().getName(), String.valueOf(id));
             root.addContent(objectElement);
@@ -53,66 +51,23 @@ public class Serializer
             	Object	array	= obj.getClass().isArray() ? obj : ((Collection<?>) obj).toArray();
             	int		length	= Array.getLength(array);
             	
-            	// Set length attribute if array.
             	if (obj.getClass().isArray())
-            	{
     				objectElement.setAttribute("length", String.valueOf(length));
-            	}
 				  
 				for (int i = 0; i < length; i++)
-				{
-					Object arrayElement = Array.get(array, i);
-					if (arrayElement != null)
-					{
-						if (isPrimitive(arrayElement.getClass()))
-							objectElement.addContent(getValueElement(arrayElement.toString()));
-						else
-						{
-							int		arrayElementId		= getObjectId(arrayElement, identityHashMap);							
-							Element referenceElement 	= getReferenceElement(String.valueOf(arrayElementId));
-							objectElement.addContent(referenceElement);
-							
-							if (!identityHashMap.containsKey(arrayElement) && 
-                            	!queue.contains(arrayElement))
-                            {
-                                queue.add(arrayElement);
-                                identityHashMap.put(arrayElement, arrayElementId);
-                            }
-						}
-					}
-				}
+					processObject(Array.get(array, i), objectElement, queue, identityHashMap);
             }
             else
             {
                 Field[] fields = obj.getClass().getDeclaredFields();
                 for (Field field : fields)
                 {
-                    field.setAccessible(true);
-                    
+                    field.setAccessible(true);                    
                     Element fieldElement = getFieldElement(field.getName(), field.getDeclaringClass().getName());              
-                    
                     try
                     {
-                        Object fieldValue = field.get(obj);
-                        if (fieldValue != null)
-                        {
-                            if (isPrimitive(field.getType()))
-                                fieldElement.addContent(getValueElement(fieldValue.toString()));
-                            else
-                            {
-                            	int		fieldObjectId		= getObjectId(fieldValue, identityHashMap);                            	
-    							Element referenceElement 	= getReferenceElement(String.valueOf(fieldObjectId));
-    							fieldElement.addContent(referenceElement);
-    							
-                                if (!identityHashMap.containsKey(fieldValue) && 
-                                	!queue.contains(fieldValue))
-                                {
-                                    queue.add(fieldValue);
-                                    identityHashMap.put(fieldValue, fieldObjectId);
-                                }
-                            }
-                        }
-                        objectElement.addContent(fieldElement);
+                        if (processObject(field.get(obj), fieldElement, queue, identityHashMap))
+                        	objectElement.addContent(fieldElement);
                     }
                     catch (IllegalAccessException e)
                     {
@@ -173,5 +128,29 @@ public class Serializer
         objectElement.setAttribute("id", id);
         return objectElement;
     }
+    
+    private boolean processObject(Object object, Element parent, Queue<Object> queue, 
+    		IdentityHashMap<Object, Integer> identityHashMap)
+    {
+    	if (object != null)
+	    {
+	        if (isPrimitive(object.getClass()))
+	            parent.addContent(getValueElement(object.toString()));
+	        else
+	        {
+	        	int		fieldObjectId		= getObjectId(object, identityHashMap);                            	
+				Element referenceElement 	= getReferenceElement(String.valueOf(fieldObjectId));
+				parent.addContent(referenceElement);
+				
+	            if (!identityHashMap.containsKey(object) && 
+	            	!queue.contains(object))
+	            {
+	                queue.add(object);
+	                identityHashMap.put(object, fieldObjectId);
+	            }
+	        }
+	        return true;
+	    }
+    	return false;
+    }
 }
-
