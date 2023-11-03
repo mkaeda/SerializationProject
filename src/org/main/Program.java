@@ -1,7 +1,16 @@
 package org.main;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.Scanner;
 
+import org.jdom2.Document;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import org.main.objects.CartesianPlot;
 import org.main.objects.Line;
 import org.main.objects.Point;
@@ -35,8 +44,10 @@ public class Program
 	{
 		printOpeningText();
 		
-        Scanner scanner = new Scanner(System.in);
-        int 	choice 	= 0;
+		Document	document	= null;
+        Scanner		scanner 	= new Scanner(System.in);
+        Serializer	serializer	= new Serializer();
+        int 		choice 		= 0;
 
         while (choice != QUIT)
         {
@@ -47,24 +58,19 @@ public class Program
             switch (choice)
             {
                 case 1:
-                    createPointObject(scanner);
-                    System.out.println("serializing object...");
+                    document = serializer.serialize(createPointObject(scanner));
                     break;
                 case 2:
-                    createLineObject(scanner);
-                    System.out.println("serializing object...");
+                	document = serializer.serialize(createLineObject(scanner));
                     break;
                 case 3:
-                	createPolygonObject(scanner);
-                    System.out.println("serializing object...");
+                	document = serializer.serialize(createPolygonObject(scanner));
                     break;
                 case 4:
-                	createPolynomialObject(scanner);
-                	System.out.println("serializing object...");
+                	document = serializer.serialize(createPolynomialObject(scanner));
                     break;
                 case 5:
-                	createCartesianPlotObject(scanner);
-                	System.out.println("serializing object...");
+                	document = serializer.serialize(createCartesianPlotObject(scanner));
                 	break;
                 case 6:
                 	System.out.println("Exiting the program. Goodbye!");
@@ -73,10 +79,89 @@ public class Program
                     System.out.println("Invalid choice. Please try again.");
                     break;
             }
+            
+            if (document != null)
+            {
+            	System.out.println("Creating and serializing objects...\r\nDone.");
+            	int sendOrSave = -1;
+            	while (sendOrSave < 0) 
+            	{
+            		printSendOrSaveOptions();
+                	sendOrSave = scanner.nextInt();
+                	if (sendOrSave == 1)
+                	{
+                		// Send object to deserializer
+                		sendDocument(document, scanner);
+                	}
+                	else if (sendOrSave == 2)
+                	{
+                		saveDocument(document, scanner);
+                	}
+                	else
+                	{
+                        System.out.println("Invalid choice. Please try again.");
+                        sendOrSave = -1;
+                	}
+            	}
+            }
+            
+            System.out.println();
         }
 
         scanner.close();
     }
+
+	private static void sendDocument(Document doc, Scanner scanner)
+	{
+		System.out.print(" >> Deserializer IP Address: ");
+		String	ipAddr	= scanner.next();
+		
+		System.out.print(" >> Port number: ");
+		int 	portNum	= scanner.nextInt();
+		
+		try
+		{
+            System.out.println("Connecting to " + ipAddr + " on port " + portNum + "...");
+            Socket client = new Socket(ipAddr, portNum);
+            System.out.println("Connected.");
+            
+            System.out.println("Sending document...");
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(client.getOutputStream());
+            objectOutputStream.writeObject(doc);
+            System.out.println("Sent."); 
+            
+            DataInputStream	in = new DataInputStream(client.getInputStream());
+            System.out.println("Deserializer says '" + in.readUTF() + "'");
+            client.close();
+        }
+		catch (IOException e)
+		{
+            e.printStackTrace();
+        }
+	}
+	
+	private static void saveDocument(Document doc, Scanner scanner)
+	{
+		XMLOutputter	outputter	= new XMLOutputter();
+		outputter.setFormat(Format.getPrettyFormat());
+        
+        System.out.print(" >> Enter complete file name: ");
+		String filename	= scanner.nextLine();
+		
+		try
+		{
+			System.out.println("Saving file...");
+            FileWriter writer = new FileWriter(new File(filename));
+            outputter.output(doc, writer);
+            writer.flush();
+            writer.close();
+            System.out.println("File saved.");
+        }
+		catch (IOException e)
+		{
+            e.printStackTrace();
+        }
+	}
 	
 	private static void printOpeningText()
 	{
@@ -256,5 +341,19 @@ public class Program
 	private static boolean isEven(int n)
 	{
 		return n % 2 == 0;
+	}
+	
+	private static final String[] SEND_OR_SAVE_MENU = new String[] {
+		"Send to Deserializer",
+		"Save to File"
+	};
+	
+	private static void printSendOrSaveOptions()
+	{
+		System.out.println("Select an object to create and serialise.");
+		for (int i = 0; i < SEND_OR_SAVE_MENU.length; i++) {
+			System.out.println(String.format("%d. %s", i + 1, SEND_OR_SAVE_MENU[i]));
+		}
+		System.out.print("Selection: ");
 	}
 }
