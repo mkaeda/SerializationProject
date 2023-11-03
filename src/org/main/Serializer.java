@@ -45,7 +45,7 @@ public class Serializer
             	id = identityHashMap.get(obj);
             }
             
-            Element objectElement 	= new Element("object");
+            Element objectElement = new Element("object");
             objectElement.setAttribute("class", obj.getClass().getName());
             objectElement.setAttribute("id", String.valueOf(id));
             root.addContent(objectElement);
@@ -54,6 +54,8 @@ public class Serializer
             {
             	Object	array	= obj.getClass().isArray() ? obj : ((Collection<?>) obj).toArray();
             	int		length	= Array.getLength(array);
+            	
+            	// Set length attribute if array.
             	if (obj.getClass().isArray())
             	{
     				objectElement.setAttribute("length", String.valueOf(length));
@@ -65,11 +67,7 @@ public class Serializer
 					if (arrayElement != null)
 					{
 						if (isPrimitive(arrayElement.getClass()))
-						{
-							Element valueElement = new Element("value");
-							valueElement.setText(arrayElement.toString());
-							objectElement.addContent(valueElement);
-						}
+							objectElement.addContent(getValueElement(arrayElement.toString()));
 						else
 						{
 							int arrayElementId = 
@@ -108,11 +106,7 @@ public class Serializer
                         if (fieldValue != null)
                         {
                             if (isPrimitive(field.getType()))
-                            {
-                                Element valueElement = new Element("value");
-                                valueElement.setText(fieldValue.toString());
-                                fieldElement.addContent(valueElement);
-                            }
+                                fieldElement.addContent(getValueElement(fieldValue.toString()));
                             else
                             {
                             	int fieldObjectId = 
@@ -155,6 +149,13 @@ public class Serializer
     			|| type == Long.class 
     			|| type == Float.class 
     			|| type == Double.class;
+    }
+    
+    private Element getValueElement(String value)
+    {
+    	Element valueElement = new Element("value");
+        valueElement.setText(value);
+        return valueElement;
     }
 }
 
