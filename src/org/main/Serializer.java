@@ -70,12 +70,8 @@ public class Serializer
 							objectElement.addContent(getValueElement(arrayElement.toString()));
 						else
 						{
-							int arrayElementId = 
-									identityHashMap.containsKey(arrayElement)
-	                    			? identityHashMap.get(arrayElement) 
-	                    			: identityHashMap.size();
-							
-							Element referenceElement = new Element("reference");
+							int		arrayElementId		= getObjectId(arrayElement, identityHashMap);							
+							Element referenceElement 	= new Element("reference");
 							referenceElement.setText(String.valueOf(arrayElementId));
 							objectElement.addContent(referenceElement);
 							
@@ -109,12 +105,8 @@ public class Serializer
                                 fieldElement.addContent(getValueElement(fieldValue.toString()));
                             else
                             {
-                            	int fieldObjectId = 
-                            			identityHashMap.containsKey(fieldValue)
-                            			? identityHashMap.get(fieldValue) 
-                            			: identityHashMap.size();
-                            	
-    							Element referenceElement = new Element("reference");
+                            	int		fieldObjectId		= getObjectId(fieldValue, identityHashMap);                            	
+    							Element referenceElement 	= new Element("reference");
     							referenceElement.setText(String.valueOf(fieldObjectId));
     							fieldElement.addContent(referenceElement);
     							
@@ -149,6 +141,13 @@ public class Serializer
     			|| type == Long.class 
     			|| type == Float.class 
     			|| type == Double.class;
+    }
+    
+    private int getObjectId(Object obj, IdentityHashMap<Object, Integer> identityHashMap)
+    {
+    	return identityHashMap.containsKey(obj)
+    			? identityHashMap.get(obj) 
+    			: identityHashMap.size();
     }
     
     private Element getValueElement(String value)
